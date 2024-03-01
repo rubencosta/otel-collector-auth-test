@@ -1,0 +1,64 @@
+extensions:
+  bearertokenauth/vm:
+    token: 'vmapikey'
+  bearertokenauth/ls1:
+    token: 'ls1'
+  bearertokenauth/ls2:
+    token: 'ls2'
+
+receivers:
+  otlp/ls1:
+    protocols:
+      http:
+        tls:
+          ca_file: /tmp/certs/ca.pem
+          cert_file: /tmp/certs/cert.pem
+          key_file: /tmp/certs/cert.key
+        endpoint: 0.0.0.0:4301
+        auth:
+          authenticator: bearertokenauth/ls1
+  otlp/ls2:
+    protocols:
+      http:
+        tls:
+          ca_file: /tmp/certs/ca.pem
+          cert_file: /tmp/certs/cert.pem
+          key_file: /tmp/certs/cert.key
+        endpoint: otel-gateway:4302
+        auth:
+          authenticator: bearertokenauth/ls2
+
+exporters:
+  # otlphttp/withauth:
+  #   endpoint: http://vm-cloud
+  #   auth:
+  #     authenticator: bearertokenauth/vm
+  debug:
+    verbosity: detailed
+
+processors:
+  attributes/ls1:
+    actions:
+      - key: live_system
+        action: insert
+        value: ls1
+  attributes/ls2:
+    actions:
+      - key: live_system
+        action: insert
+        value: ls2
+
+service:
+  telemetry:
+    logs:
+      level: info
+  extensions: [bearertokenauth/vm, bearertokenauth/ls1, bearertokenauth/ls2]
+  pipelines:
+    metrics/ls1:
+      receivers: [otlp/ls1]
+      processors: [attributes/ls1]
+      exporters: [debug]
+    metrics/ls2:
+      receivers: [otlp/ls2]
+      processors: [attributes/ls2]
+      exporters: [debug]

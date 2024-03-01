@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  otel-gateway:
+    image: otel/opentelemetry-collector-contrib:latest
+    user: 1000:1000
+    volumes:
+      - ./otel-config-gateway.yaml:/etc/otelcol-contrib/config.yaml
+      - ./certs:/tmp/certs
+    security_opt:
+      - label:disable
+  otel-ls1:
+    image: otel/opentelemetry-collector-contrib:latest
+    user: 1000:1000
+    volumes:
+      - ./otel-config-ls1.yaml:/etc/otelcol-contrib/config.yaml
+      - ./certs:/tmp/certs
+    security_opt:
+      - label:disable
+  otel-ls2:
+    image: otel/opentelemetry-collector-contrib:latest
+    user: 1000:1000
+    volumes:
+      - ./otel-config-ls2.yaml:/etc/otelcol-contrib/config.yaml
+      - ./certs:/tmp/certs
+    security_opt:
+      - label:disable

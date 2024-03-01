@@ -1,0 +1,29 @@
+extensions:
+  bearertokenauth:
+    token: 'ls2'
+
+receivers:
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+
+exporters:
+  otlphttp:
+    endpoint: https://otel-gateway:4302
+    tls:
+      ca_file: /tmp/certs/ca.pem
+      insecure: false
+    auth:
+      authenticator: bearertokenauth
+
+service:
+  telemetry:
+    logs:
+      level: info
+  extensions: [bearertokenauth]
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      processors: []
+      exporters: [otlphttp]
